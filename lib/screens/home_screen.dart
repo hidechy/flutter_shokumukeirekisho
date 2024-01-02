@@ -34,6 +34,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final yearmonthListScrollController = AutoScrollController();
   final yearListScrollController = AutoScrollController();
 
+  JobHistory jobHistoryDefault = JobHistory();
+  JobDummy jobDummyDefault = JobDummy();
+
   ///
   void _init() {
     _makeYearmonthList();
@@ -122,17 +125,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final dummyFlag = ref.watch(appParamProvider.select((value) => value.dummyFlag));
 
     for (var i = 0; i < ymList.length; i++) {
-      var jobHistory = JobHistory()
-        ..yearmonth = ''
-        ..jobName = ''
-        ..spot = ''
-        ..company = '';
-
-      var jobDummy = JobDummy()
-        ..yearmonth = ''
-        ..jobName = ''
-        ..spot = ''
-        ..company = '';
+      var jobHistory = jobHistoryDefault;
+      var jobDummy = jobDummyDefault;
 
       if (jobHistoryMap[ymList[i]] != null) {
         jobHistory = jobHistoryMap[ymList[i]]!;
@@ -159,19 +153,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   final thisMonthJobHistory =
                       jobHistoryList!.where((element2) => element2.yearmonth == ymList[i]).toList();
 
-                  var jobHistory = JobHistory()
-                    ..yearmonth = ''
-                    ..jobName = ''
-                    ..spot = ''
-                    ..company = '';
-
                   final thisMonthJobDummy = jobDummyList!.where((element2) => element2.yearmonth == ymList[i]).toList();
 
-                  var jobDummy = JobDummy()
-                    ..yearmonth = ''
-                    ..jobName = ''
-                    ..spot = ''
-                    ..company = '';
+                  var jobHistory = jobHistoryDefault;
+                  var jobDummy = jobDummyDefault;
 
                   if (dummyFlag) {
                     if (thisMonthJobDummy.isNotEmpty) {
@@ -344,11 +329,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final map = <String, JobHistory>{};
     jobHistoryList.forEach((element) => map[element.yearmonth] = element);
 
-    var jobHistory = JobHistory()
-      ..yearmonth = ''
-      ..jobName = ''
-      ..spot = ''
-      ..company = '';
+    var jobHistory = jobHistoryDefault;
 
     yearmonthList.forEach((element) {
       if (map[element] != null) {
@@ -381,11 +362,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final map = <String, JobDummy>{};
     jobDummyList.forEach((element) => map[element.yearmonth] = element);
 
-    var jobDummy = JobDummy()
-      ..yearmonth = ''
-      ..jobName = ''
-      ..spot = ''
-      ..company = '';
+    var jobDummy = jobDummyDefault;
 
     yearmonthList.forEach((element) {
       if (map[element] != null) {
