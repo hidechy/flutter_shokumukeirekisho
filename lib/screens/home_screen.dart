@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:shokumukeirekisho/state/work_time_summary/work_time_summary_notifier.dart';
 
 import '../collections/job_dummy.dart';
 
@@ -34,8 +35,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final yearmonthListScrollController = AutoScrollController();
   final yearListScrollController = AutoScrollController();
 
-  JobHistory jobHistoryDefault = JobHistory();
-  JobDummy jobDummyDefault = JobDummy();
+  JobHistory jobHistoryDefault = JobHistory()
+    ..yearmonth = ''
+    ..jobName = ''
+    ..spot = ''
+    ..company = '';
+  JobDummy jobDummyDefault = JobDummy()
+    ..yearmonth = ''
+    ..jobName = ''
+    ..spot = ''
+    ..company = '';
 
   ///
   void _init() {
@@ -123,6 +132,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     final dummyFlag = ref.watch(appParamProvider.select((value) => value.dummyFlag));
+
+    final wtsItemMap = ref.watch(workTimeSummaryProvider.select((value) => value.wtsItemMap));
 
     for (var i = 0; i < ymList.length; i++) {
       var jobHistory = jobHistoryDefault;
@@ -217,7 +228,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             style: const TextStyle(fontSize: 10, color: Colors.grey),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [Text(jobHistory.spot), Text(jobHistory.company)],
+                              children: [
+                                Text(jobHistory.spot),
+                                Text(jobHistory.company),
+                                if (wtsItemMap[ymList[i]] != null) ...[
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        wtsItemMap[ymList[i]]!.workSum,
+                                        style: const TextStyle(color: Color(0xFFFBB6CE)),
+                                      ),
+                                      Text(
+                                        (wtsItemMap[ymList[i]] != null && wtsItemMap[ymList[i]]!.salary != '')
+                                            ? wtsItemMap[ymList[i]]!.salary.toCurrency()
+                                            : '',
+                                        style: const TextStyle(color: Color(0xFFFBB6CE)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
