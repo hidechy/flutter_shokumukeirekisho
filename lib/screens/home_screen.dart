@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
-import 'package:shokumukeirekisho/state/work_time_summary/work_time_summary_notifier.dart';
 
 import '../collections/job_dummy.dart';
-
 import '../collections/job_history.dart';
 import '../extensions/extensions.dart';
 import '../state/app_param/app_param_notifier.dart';
+import '../state/work_time_summary/work_time_summary_notifier.dart';
+import '../utility/utility.dart';
 import 'components/job_history_input_alert.dart';
 import 'components/parts/job_dialog.dart';
 
@@ -23,6 +23,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  Utility utility = Utility();
+
   List<String> yearmonthList = [];
   List<String> yearList = [];
 
@@ -79,17 +81,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: DefaultTextStyle(
-          style: GoogleFonts.kiwiMaru(fontSize: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(width: context.screenSize.width),
-              _displayYearList(),
-              const SizedBox(height: 10),
-              Expanded(child: _displayYearMonthList()),
-            ],
-          ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            utility.getBackGround(),
+            DefaultTextStyle(
+              style: GoogleFonts.kiwiMaru(fontSize: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(width: context.screenSize.width),
+                  _displayYearList(),
+                  const SizedBox(height: 10),
+                  Expanded(child: _displayYearMonthList()),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

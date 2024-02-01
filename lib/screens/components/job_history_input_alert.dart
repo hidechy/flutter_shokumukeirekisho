@@ -96,6 +96,7 @@ class _JobHistoryInputAlertState extends ConsumerState<JobHistoryInputAlert> {
                   ),
                 ],
               ),
+              Expanded(child: _displayJobHistory()),
             ],
           ),
         ),
@@ -218,5 +219,108 @@ class _JobHistoryInputAlertState extends ConsumerState<JobHistoryInputAlert> {
         jobDummyList = getJobDummys;
       });
     }
+  }
+
+  ///
+  Widget _displayJobHistory() {
+    final list = <Widget>[];
+
+    final dummyFlag = ref.watch(appParamProvider.select((value) => value.dummyFlag));
+
+    if (dummyFlag) {
+      jobDummyList?.forEach((element) {
+        if (widget.yearmonth == element.yearmonth) {
+          list.add(
+            jobDisplayParts(id: element.id, jobName: element.jobName, spot: element.spot, company: element.company),
+          );
+        }
+      });
+    } else {
+      jobHistoryList?.forEach((element) {
+        if (widget.yearmonth == element.yearmonth) {
+          list.add(
+            jobDisplayParts(id: element.id, jobName: element.jobName, spot: element.spot, company: element.company),
+          );
+        }
+      });
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: list,
+      ),
+    );
+  }
+
+  ///
+  Widget jobDisplayParts({required int id, required String jobName, required String spot, required String company}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(5),
+      margin: const EdgeInsets.all(5),
+      decoration: BoxDecoration(border: Border.all(color: Colors.white.withOpacity(0.4))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(jobName),
+          Text(spot),
+          Text(company),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(),
+              GestureDetector(
+                onTap: () {
+                  _showDeleteDialog(id: id);
+                },
+                child: Text(
+                  '削除する',
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  ///
+  void _showDeleteDialog({required int id}) {
+    final Widget cancelButton = TextButton(onPressed: () => Navigator.pop(context), child: const Text('いいえ'));
+
+    final Widget continueButton = TextButton(
+        onPressed: () {
+          _deleteJobHistory(id: id);
+
+          Navigator.pop(context);
+        },
+        child: const Text('はい'));
+
+    final alert = AlertDialog(
+      backgroundColor: Colors.blueGrey.withOpacity(0.3),
+      content: const Text('このデータを消去しますか？'),
+      actions: [cancelButton, continueButton],
+    );
+
+    showDialog(context: context, builder: (BuildContext context) => alert);
+  }
+
+  ///
+  Future<void> _deleteJobHistory({required int id}) async {
+    final dummyFlag = ref.watch(appParamProvider.select((value) => value.dummyFlag));
+
+    if (dummyFlag) {
+      final jobDummysCollection = widget.isar.jobDummys;
+      await widget.isar.writeTxn(() async => jobDummysCollection.delete(id));
+    } else {
+      final jobHistorysCollection = widget.isar.jobHistorys;
+      await widget.isar.writeTxn(() async => jobHistorysCollection.delete(id));
+    }
+
+    _jobNameEditingController.clear();
+    _spotEditingController.clear();
+    _companyEditingController.clear();
   }
 }
