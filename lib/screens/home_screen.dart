@@ -70,9 +70,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () {
-              ref.read(appParamProvider.notifier).setDummyFlag(flag: !dummyFlag);
-            },
+            onPressed: () => ref.read(appParamProvider.notifier).setDummyFlag(flag: !dummyFlag),
             icon: Icon(
               Icons.ac_unit,
               color: dummyFlag ? Colors.yellowAccent : Colors.white,
@@ -147,13 +145,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       var jobHistory = jobHistoryDefault;
       var jobDummy = jobDummyDefault;
 
-      if (jobHistoryMap[ymList[i]] != null) {
-        jobHistory = jobHistoryMap[ymList[i]]!;
-      }
-
       if (dummyFlag) {
         if (jobDummyMap[ymList[i]] != null) {
           jobDummy = jobDummyMap[ymList[i]]!;
+        }
+      } else {
+        if (jobHistoryMap[ymList[i]] != null) {
+          jobHistory = jobHistoryMap[ymList[i]]!;
+        }
+      }
+
+      if (selectedJobYear == '') {
+        final exYm = ymList[i].split('-');
+        if (exYm[1] == '01') {
+          list.add(
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.yellowAccent.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(exYm[0]),
+            ),
+          );
         }
       }
 
@@ -164,114 +178,115 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.3)))),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  final thisMonthJobHistory =
-                      jobHistoryList!.where((element2) => element2.yearmonth == ymList[i]).toList();
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: context.screenSize.height / 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    final thisMonthJobHistory =
+                        jobHistoryList!.where((element2) => element2.yearmonth == ymList[i]).toList();
 
-                  final thisMonthJobDummy = jobDummyList!.where((element2) => element2.yearmonth == ymList[i]).toList();
+                    final thisMonthJobDummy =
+                        jobDummyList!.where((element2) => element2.yearmonth == ymList[i]).toList();
 
-                  var jobHistory = jobHistoryDefault;
-                  var jobDummy = jobDummyDefault;
+                    var jobHistory = jobHistoryDefault;
+                    var jobDummy = jobDummyDefault;
 
-                  if (dummyFlag) {
-                    if (thisMonthJobDummy.isNotEmpty) {
-                      jobDummy = thisMonthJobDummy[0];
+                    if (dummyFlag) {
+                      if (thisMonthJobDummy.isNotEmpty) {
+                        jobDummy = thisMonthJobDummy[0];
+                      }
+                    } else {
+                      if (thisMonthJobHistory.isNotEmpty) {
+                        jobHistory = thisMonthJobHistory[0];
+                      }
                     }
-                  } else {
-                    if (thisMonthJobHistory.isNotEmpty) {
-                      jobHistory = thisMonthJobHistory[0];
-                    }
-                  }
 
-                  JobDialog(
-                    context: context,
-                    widget: JobHistoryInputAlert(
-                      isar: widget.isar,
-                      yearmonth: ymList[i],
-                      jobHistory: jobHistory,
-                      jobDummy: jobDummy,
-                    ),
-                  );
-                },
-                child: CircleAvatar(
-                  radius: 12,
-                  backgroundColor: _getCircleAvatarBgColor(yearmonth: ymList[i]),
+                    JobDialog(
+                      context: context,
+                      widget: JobHistoryInputAlert(
+                          isar: widget.isar, yearmonth: ymList[i], jobHistory: jobHistory, jobDummy: jobDummy),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 12,
+                    backgroundColor: _getCircleAvatarBgColor(yearmonth: ymList[i]),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(child: Text(ymList[i])),
-              Expanded(
-                flex: 3,
-                child: dummyFlag
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            jobDummy.jobName,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: (jobHistory.jobName == jobDummy.jobName) ? Colors.yellowAccent : Colors.white,
+                const SizedBox(width: 10),
+                Expanded(child: Text(ymList[i])),
+                Expanded(
+                  flex: 3,
+                  child: dummyFlag
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              jobDummy.jobName,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: (jobHistory.jobName == jobDummy.jobName) ? Colors.yellowAccent : Colors.white,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          DefaultTextStyle(
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [Text(jobDummy.spot), Text(jobDummy.company)],
+                            const SizedBox(height: 10),
+                            DefaultTextStyle(
+                              style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [Text(jobDummy.spot), Text(jobDummy.company)],
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(jobHistory.jobName, overflow: TextOverflow.ellipsis),
-                          const SizedBox(height: 10),
-                          DefaultTextStyle(
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(jobHistory.spot),
-                                Text(jobHistory.company),
-                                if (wtsItemMap[ymList[i]] != null) ...[
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        wtsItemMap[ymList[i]]!.workSum,
-                                        style: const TextStyle(color: Color(0xFFFBB6CE)),
-                                      ),
-                                      Text(
-                                        (wtsItemMap[ymList[i]] != null && wtsItemMap[ymList[i]]!.salary != '')
-                                            ? wtsItemMap[ymList[i]]!.salary.toCurrency()
-                                            : '',
-                                        style: const TextStyle(color: Color(0xFFFBB6CE)),
-                                      ),
-                                    ],
-                                  ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(jobHistory.jobName, overflow: TextOverflow.ellipsis),
+                            const SizedBox(height: 10),
+                            DefaultTextStyle(
+                              style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(jobHistory.spot),
+                                  Text(jobHistory.company),
+                                  if (wtsItemMap[ymList[i]] != null) ...[
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          wtsItemMap[ymList[i]]!.workSum,
+                                          style: const TextStyle(color: Color(0xFFFBB6CE)),
+                                        ),
+                                        Text(
+                                          (wtsItemMap[ymList[i]] != null && wtsItemMap[ymList[i]]!.salary != '')
+                                              ? wtsItemMap[ymList[i]]!.salary.toCurrency()
+                                              : '',
+                                          style: const TextStyle(color: Color(0xFFFBB6CE)),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-              ),
-              // const SizedBox(width: 10),
-              // Icon(Icons.info_outline_rounded, color: Colors.greenAccent.withOpacity(0.6)),
-            ],
+                          ],
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ));
     }
 
-    return SingleChildScrollView(controller: yearmonthListScrollController, child: Column(children: list));
+    return SingleChildScrollView(
+      controller: yearmonthListScrollController,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: list),
+    );
   }
 
   ///
